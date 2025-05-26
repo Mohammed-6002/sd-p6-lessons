@@ -87,5 +87,37 @@ function savePurchase(array $inputs):bool
     return $sth->execute();
 }
 
+function checkLogin($inputs): string {
+    global $pdo;
 
+    $sql = 'SELECT * FROM `user` WHERE `email` = :e AND `password` = :p';
+    $sth = $pdo->prepare($sql);
+    $sth->bindParam(':e', $inputs['email']); 
+    $sth->bindParam(':p', $inputs['password']);
+    $sth->setFetchMode(PDO::FETCH_CLASS, 'User');
+    $sth->execute();
 
+    $user = $sth->fetch();  
+    if ($user !== false) {
+        $_SESSION['user'] = $user;  
+        if ($user->role === "admin") {
+            return 'ADMIN';
+        } else {
+            return 'USER';
+        }
+    }
+
+    return 'FAILURE';
+}
+
+function isAdmin():bool {
+    if (isset($_SESSION['user'])&&!empty($_SESSION['user'])) {
+        $user = $_SESSION['user'];
+        if ($user->role == "admin") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    return false;
+   }

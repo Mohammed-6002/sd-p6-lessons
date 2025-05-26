@@ -1,49 +1,46 @@
 <?php 
-    session_start();
-    include_once("modules/database.php");
-    include_once("modules/functions.php");
+session_start();
+include_once("modules/database.php");
+include_once("modules/functions.php");
 
-    $errors = [];
-    $inputs = [];
+$errors = [];
+$inputs = [];
 
-    const EMAIL_REQUIRED = 'Email invullen';
-    const EMAIL_INVALID = 'Geldig email adres invullen';
-    const PASSWORD_REQUIRED = 'Passoword invullen';
-    const CREDENTIALS_NOT_Vaild = 'Verkeerde email en/of password';
+const EMAIL_REQUIRED = 'Email invullen';
+const EMAIL_INVALID = 'Geldig email adres invullen';
+const PASSWORD_REQUIRED = 'Password invullen';
+const CREDENTIALS_NOT_VALID = 'Verkeerde email en/of password';
 
 if (isset($_POST['login'])) {
-    $email = filter_input(INPUT_POST,'email' FILTER_VALIDATE_EMAIL);
-    if ($email === flase) {
-        $errors['email'] = EMAIL_REQUIRED;
+    $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+    if (!$email) {
+        $errors['email'] = EMAIL_INVALID;
     } else {
         $inputs['email'] = $email;
     }
-}
 
-$password = filter_input(INPUT_POST,'password');
+    $password = filter_input(INPUT_POST, 'password');
+    if (!$password) {
+        $errors['password'] = PASSWORD_REQUIRED;
+    } else {
+        $inputs['password'] = $password;
+    }
 
-if (EMAIL_INVALID === $password) {
-    $errors['password'] = EMAIL_REQUIRED;
-} else if (PASSWORD_INVALID === $password) {
-    inputs ['password'] = PASSWORD_REQUIRED;
-}
-
-if (count($errors) === 0) {
-
-    $result = checkLogin($inputs);
-    switch ($result) {  
-        case 'ADMIN':
-
-            header("Location: admin.php");
-            break;
-
-        case 'FAILURE':
-            $errors['credentials']=CREDENTIALS_NOT_VALID;
-            include_once "Login.php";
-            break;    
+    if (count($errors) === 0) {
+        $result = checkLogin($inputs);
+        switch ($result) {
+            case 'ADMIN':
+                header("Location: admin.php");
+                exit;
+            case 'FAILURE':
+                $errors['credentials'] = CREDENTIALS_NOT_VALID;
+                include_once "Login.php";
+                break;
+        }
+    } else {
+        include_once "Login.php";
     }
 }
-
 ?>
 
 <div class="container-lg">
